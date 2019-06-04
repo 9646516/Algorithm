@@ -1,13 +1,9 @@
 #include<bits/stdc++.h>
 using namespace std;
 struct node {
-	long long val;
-	int l;
-	int r;
-	int maxx;
-	int minn;
+	long long val,maxx,minn;
+	int l,r;
 } tree[6666666];
-int n,q,a,b,c;
 void build(int root,int l,int r) {
 	tree[root].l=l;
 	tree[root].r=r;
@@ -16,6 +12,11 @@ void build(int root,int l,int r) {
 	int mid=(l+r)/2;
 	build(root*2+1,l,mid);
 	build(root*2+2,mid+1,r);
+}
+void push_up(int root) {
+	tree[root].val=tree[root*2+1].val+tree[root*2+2].val;
+	tree[root].maxx=max(tree[root*2+1].maxx,tree[root*2+2].maxx);
+	tree[root].minn=min(tree[root*2+1].minn,tree[root*2+2].minn);
 }
 void change(int root,int id,int val) {
 	int op=tree[root].l;
@@ -28,9 +29,7 @@ void change(int root,int id,int val) {
 	int mid=(op+ed)/2;
 	if(id<=mid)change(root*2+1,id,val);
 	else change(root*2+2,id,val);
-	tree[root].val=tree[root*2+1].val+tree[root*2+2].val;
-	tree[root].maxx=max(tree[root*2+1].maxx,tree[root*2+2].maxx);
-	tree[root].minn=min(tree[root*2+1].minn,tree[root*2+2].minn);
+	push_up(root);
 }
 long long sum(int root,int l,int r) {
 	int op=tree[root].l;
@@ -66,6 +65,7 @@ int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	cout.tie(0);
+	int n,q,a,b,c;
 	cin>>n>>q;
 	build(0,1,n);
 	while(q--) {
