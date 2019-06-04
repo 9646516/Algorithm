@@ -1,12 +1,9 @@
 #include<bits/stdc++.h>
 using namespace std;
 struct node {
-	long long val;
-	long long lazy;
-	int l;
-	int r;
+	long long val,lazy;
+	int l,r;
 } tree[8666666];
-int n,q,a,b,c,d;
 void build(int root,int l,int r) {
 	tree[root].l=l;
 	tree[root].r=r;
@@ -16,10 +13,7 @@ void build(int root,int l,int r) {
 	build(root*2+1,l,mid);
 	build(root*2+2,mid+1,r);
 }
-void change(int root,int l,int r,int val) {
-	int op=tree[root].l;
-	int ed=tree[root].r;
-	if(op>ed)return;
+void push_down(int root) {
 	if(tree[root].lazy) {
 		tree[root*2+1].val+=(tree[root*2+1].r-tree[root*2+1].l+1)*tree[root].lazy;
 		tree[root*2+2].val+=(tree[root*2+2].r-tree[root*2+2].l+1)*tree[root].lazy;
@@ -27,6 +21,15 @@ void change(int root,int l,int r,int val) {
 		tree[root*2+2].lazy+=tree[root].lazy;
 		tree[root].lazy=0;
 	}
+}
+void push_up(int root) {
+	tree[root].val=tree[root*2+1].val+tree[root*2+2].val;
+}
+void change(int root,int l,int r,int val) {
+	int op=tree[root].l;
+	int ed=tree[root].r;
+	if(op>ed)return;
+	push_down(root);
 	if(op==l&&ed==r) {
 		tree[root].val+=(tree[root].r-tree[root].l+1)*val;
 		tree[root].lazy+=val;
@@ -39,19 +42,13 @@ void change(int root,int l,int r,int val) {
 		change(root*2+1,l,mid,val);
 		change(root*2+2,mid+1,r,val);
 	}
-	tree[root].val=tree[root*2+1].val+tree[root*2+2].val;
+	push_up(root);
 }
 long long sum(int root,int l,int r) {
 	int op=tree[root].l;
 	int ed=tree[root].r;
 	if(op>ed)return 0;
-	if(tree[root].lazy) {
-		tree[root*2+1].val+=(tree[root*2+1].r-tree[root*2+1].l+1)*tree[root].lazy;
-		tree[root*2+2].val+=(tree[root*2+2].r-tree[root*2+2].l+1)*tree[root].lazy;
-		tree[root*2+1].lazy+=tree[root].lazy;
-		tree[root*2+2].lazy+=tree[root].lazy;
-		tree[root].lazy=0;
-	}
+	push_down(root);
 	if(op==l&&ed==r)return tree[root].val;
 	int mid=(op+ed)/2;
 	if(r<=mid)return sum(root*2+1,l,r);
@@ -62,6 +59,7 @@ int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	cout.tie(0);
+	int n,q,a,b,c,d;
 	cin>>n>>q;
 	build(0,1,n);
 	while(q--) {
