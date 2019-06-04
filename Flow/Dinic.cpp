@@ -1,67 +1,60 @@
-struct dinic {
-	static const int N=400,M=N*20;
-	int nxt[M],head[M],list[M],cnt,w[M],w2[M],dist[N],s,e;
-	void add(int a,int b,int c) {
-		cnt++;
-		list[cnt]=b,w[cnt]=w2[cnt]=c;
-		nxt[cnt]=head[a];
-		head[a]=cnt;
-	}
-	bool bfs() {
-		memset(dist,0,sizeof(dist));
-		queue<int>q;
-		dist[s]=1;
-		q.push(s);
-		while(!q.empty()) {
-			int v=q.front();
-			q.pop();
-			for(int i=head[v]; ~i; i=nxt[i]) {
-				int u=list[i];
-				if(w[i]!=0&&dist[u]==0) {
-					dist[u]=dist[v]+1;
-					q.push(u);
-				}
-			}
-		}
-		return dist[e]>0;
-	}
-	int find(int v,int low) {
-		if(v==e)return low;
-		int a=0;
-		for(int i=head[v]; ~i&&a<low; i=nxt[i]) {
-			int temp=0;
-			int u=list[i];
-			if(w[i]&&dist[u]==dist[v]+1&&(temp=find(u,min(low-a,w[i])))) {
-				a+=temp;
-				w[i]-=temp;
-				w[i^1]+=temp;
-			}
-		}
-		if(a==0)dist[v]=0;
-		return a;
-	}
-	int calc() {
-		int ans=0;
-		while(bfs()) {
-			int a=0;
-			while((a=find(s,0x7FFFFFFF)))ans+=a;
-		}
-		return ans;
-	}
-	void init(int op,int ed) {
-		memset(head,-1,sizeof(head));
-		cnt=-1;
-		s=op;
-		e=ed;
-	}
-	int seek(int op,int ed) {
-		for(int i=head[op]; ~i; i=nxt[i]) {
-			if(list[i]==ed)return i;
-		}
-		assert(false);
-		return -1;
-	}
-	void reset() {
-		for(int i=0; i<=cnt; i++)w[i]=w2[i];
-	}
-}
+namespace Dinic {
+    const int N = 55000;
+    const int M = 5500000;
+
+    int V, E;
+
+    int fst[N];
+    int to[M], cap[M], nxt[M];
+
+    void init() {
+        memset(fst, -1, sizeof fst);
+        V = E = 0;
+    }
+    inline int add_node() {
+        V++;
+        return V - 1;
+    }
+    void add_edge(int u, int v, int w) {
+        to[E] = v, cap[E] = w, nxt[E] = fst[u], fst[u] = E++;
+        to[E] = u, cap[E] = 0, nxt[E] = fst[v], fst[v] = E++;
+    }
+    int q[N], dis[N];
+    inline int bfs(int S, int T) {
+        int qn = 0;
+        memset(dis, -1, sizeof dis);
+        q[qn++] = S; dis[S] = 0;
+        for (int i = 0; i < qn; i++) {
+            int u = q[i];
+            for (int e = fst[u]; ~e; e = nxt[e]) if (cap[e]) {
+                int v = to[e];
+                if (dis[v] == -1) {
+                    dis[v] = dis[u] + 1;
+                    q[qn++] = v;
+                }
+            }
+        }
+        return dis[T] != -1;
+    }
+    int ptr[N];
+    inline int dfs(int u, int T, int F) {
+        if (u == T) return F;
+        for (int e = ptr[u]; ~e; e = nxt[e]) if (cap[e] && dis[to[e]] == dis[u] + 1) {
+            int cur = dfs(to[e], T, min(F, cap[e]));
+            if (cur) {
+                cap[e] -= cur;
+                cap[e ^ 1] += cur;
+                return cur;
+            }
+        }
+        return 0;
+    }
+    inline int dinic(int S, int T, int n) {
+        int ret = 0;
+        while (bfs(S, T)) {
+            memcpy(ptr, fst, sizeof(int) * n);
+            for (int cur = 0; (cur = dfs(S, T, INF)) > 0; ret += cur);
+        }
+        return ret;
+    }
+};
