@@ -1,44 +1,143 @@
-const int maxn=1e5+5;
-char in[maxn];
-int sa[maxn],x[maxn],y[maxn],c[maxn],r[maxn],height[maxn],d[maxn][40];
-void build(int len) {
-	int m=200;
-	memset(c,0,sizeof(c));
-	for(int i=0; i<len; i++)c[x[i]=in[i]]++;
-	for(int i=1; i<m; i++)c[i]+=c[i-1];
-	for(int i=len-1; i>=0; i--)sa[--c[x[i]]]=i;
-	for(int k=1; k<=len; k*=2) {
-		int p=0;
-		for(int i=len-k; i<len; i++)y[p++]=i;
-		for(int i=0; i<len; i++)if(sa[i]>=k)y[p++]=sa[i]-k;
-		memset(c,0,sizeof(c));
-		for(int i=0; i<len; i++)c[x[y[i]]]++;
-		for(int i=1; i<m; i++)c[i]+=c[i-1];
-		for(int i=len-1; i>=0; i--)sa[--c[x[y[i]]]]=y[i];
-		swap(x,y);
-		x[sa[0]]=0;
-		p=1;
-		for(int i=1; i<len; i++)x[sa[i]]=y[sa[i]]==y[sa[i-1]]&&y[sa[i]+k]==y[sa[i-1]+k]?p-1:p++;
-		if(p>=len)break;
-		m=p;
-	}
-	int k=0;
-	for(int i=0; i<len; i++)r[sa[i]]=i;
-	for(int i=0; i<len; i++) {
-		if(k)k--;
-		int j=sa[r[i]-1];
-		while(in[j+k]==in[i+k])k++;
-		height[r[i]]=k;
-	}
-	for(int i=0; i<len; i++)d[i][0]=height[i];
-	for(int j=1; (1<<j)<=len; j++)for(int i=0; i+(1<<j)-1<len; i++)d[i][j]=min(d[i][j-1],d[i+(1<<(j-1))][j-1]);
-}
-int ask_rmq(int l,int r) {
-	int k=0;
-	while((1<<(k+1))<=r-l+1)k++;
-	return min(d[l][k],d[r-(1<<k)+1][k]);
-}
-int lcp(int a, int b,int len) {
-	if(a==b)return len-a;
-	return r[a]>r[b]?ask_rmq(r[b]+1,r[a]):ask_rmq(r[a]+1,r[b]);
+#include <bits/stdc++.h>
+using namespace std;
+struct SuffixArray {
+    vector<int> SA;
+    string s;
+
+    void Build_SA(const string &str) {
+        s = str;
+        SA.resize(s.size());
+        iota(begin(SA), end(SA), 0);
+        sort(begin(SA), end(SA), [&](const int &a, const int &b) {
+            if (s[a] == s[b])
+                return (a > b);
+            return (s[a] < s[b]);
+        });
+        vector<int> classes(s.size()), c(s.size()), cnt(s.size());
+        for (int i = 0; i < (int)s.size(); i++) {
+            c[i] = s[i];
+        }
+        for (int len = 1; len < (int)s.size(); len <<= 1) {
+            for (int i = 0; i < (int)s.size(); i++) {
+                if (i > 0 && c[SA[i - 1]] == c[SA[i]] &&
+                    SA[i - 1] + len < (int)s.size() &&
+                    c[SA[i - 1] + len / 2] == c[SA[i] + len / 2]) {
+                    classes[SA[i]] = classes[SA[i - 1]];
+                } else {
+                    classes[SA[i]] = i;
+                }
+            }
+            iota(begin(cnt), end(cnt), 0);
+            copy(begin(SA), end(SA), begin(c));
+            for (int i = 0; i < (int)s.size(); i++) {
+                int s1 = c[i] - len;
+                if (s1 >= 0)
+                    SA[cnt[classes[s1]]++] = s1;
+            }
+            classes.swap(c);
+        }
+    }
+
+    int operator[](int k) const { return (SA[k]); }
+
+    int size() const { return (s.size()); }
+
+    bool lt_substr(string &t, int si = 0, int ti = 0) {
+        int sn = s.size(), tn = t.size();
+        while (si < sn && ti < tn) {
+            if (s[si] < t[ti])
+                return (true);
+            if (s[si] > t[ti])
+                return (false);
+            ++si, ++ti;
+        }
+        return (si >= sn && ti < tn);
+    }
+
+    int lower_bound(string &t) {
+        int low = -1, high = SA.size();
+        while (high - low > 1) {
+            int mid = (low + high) >> 1;
+            if (lt_substr(t, SA[mid]))
+                low = mid;
+            else
+                high = mid;
+        }
+        return (high);
+    }
+
+    pair<int, int> lower_upper_bound(string &t) {
+        int idx = lower_bound(t);
+        int low = idx - 1, high = SA.size();
+        t.back()++;
+        while (high - low > 1) {
+            int mid = (low + high) >> 1;
+            if (lt_substr(t, SA[mid]))
+                low = mid;
+            else
+                high = mid;
+        }
+        t.back()--;
+        return (make_pair(idx, high));
+    }
+
+    void output() {
+        for (int i = 0; i < size(); i++) {
+            cout << i << ": " << s.substr(SA[i]) << endl;
+        }
+    }
+};
+
+struct LongestCommonPrefixArray {
+    vector<int> LCP, rank;
+
+    LongestCommonPrefixArray(SuffixArray &SA) { Build_LCP(SA); }
+
+    void Build_LCP(SuffixArray &SA) {
+        string &s = SA.s;
+        rank.resize(s.size());
+        for (int i = 0; i < (int)s.size(); i++) {
+            rank[SA[i]] = i;
+        }
+        LCP.resize(s.size());
+        LCP[0] = 0;
+        for (int i = 0, h = 0; i < (int)s.size(); i++) {
+            if (rank[i] + 1 < (int)s.size()) {
+                for (int j = SA[rank[i] + 1];
+                     max(i, j) + h < (int)s.length() && s[i + h] == s[j + h];
+                     ++h)
+                    ;
+                LCP[rank[i] + 1] = h;
+                if (h > 0)
+                    --h;
+            }
+        }
+    }
+
+    int operator[](int k) const { return (LCP[k]); }
+
+    int size() const { return (LCP.size()); }
+};
+int main() {
+#ifdef RINNE
+    freopen("in", "r", stdin);
+#endif
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    int n;
+    string a;
+    cin >> n;
+    while (n--) {
+        cin >> a;
+        SuffixArray sa;
+        sa.Build_SA(a);
+        LongestCommonPrefixArray h(sa);
+        long long ans = 0;
+        for (int i = 0; i < (int)a.size(); i++) {
+            ans += a.size() - sa[i] - h[i];
+        }
+        cout << ans << endl;
+    }
+    return 0;
 }
