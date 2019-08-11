@@ -1,20 +1,41 @@
-#include<bits/stdc++.h>
-using namespace std;
-char a[123465];
-unsigned long long hashs[123465],seed=163,power[123456];
-int main() {
-	ios::sync_with_stdio(false);
-	cin.tie(0);
-	cout.tie(0);
-	cin>>(a+1);
-	int len=strlen(a+1),cas,L,R;
-	power[0]=1;
-	for(int i=1;i<=len;i++)power[i]=power[i-1]*seed;
-	for(int i=1; i<=len; i++)hashs[i]=hashs[i-1]*seed+a[i]-'a';
-	cin>>cas;
-	while(cas--){
-		cin>>L>>R;
-		cout<<hashs[R]-hashs[L-1]*power[R-L+1]<<endl;
+template<long long MOD,long long seed,typename T>
+struct HashString {
+	vector<T>val,po;
+	HashString(const string&a) {
+		val.resize(a.size());
+		val[0]=a[0];
+		for(int i=1; i<(int)a.size(); i++) {
+			val[i]=(1LL*val[i-1]*seed+a[i])%MOD;
+		}
+		po.resize(a.size());
+		po[0]=1;
+		for(int i=1; i<(int)a.size(); i++) {
+			po[i]=1LL*po[i-1]*seed%MOD;
+		}
 	}
-	return 0;
-}
+	long long get_hash(int l,int r) {
+		long long R=val[r];
+		long long L=l>0?1LL*val[l-1]*po[r-l+1]%MOD:0;
+		return ((R-L)%MOD+MOD)%MOD;
+	}
+	void append(const string&a) {
+		int tot=po.size();
+		val.resize(tot+a.size());
+		po.resize(tot+a.size());
+		for(int i=0; i<(int)a.size(); i++) {
+			int idx=i+tot;
+			val[idx]=(1LL*val[idx-1]*seed+a[i])%MOD;
+			po[idx]=1LL*po[idx-1]*seed%MOD;
+		}
+	}
+	bool match(int L,int R,long long ps) {
+		return get_hash(L,R)==ps;
+	}
+	static long long calc_hash(const string&a) {
+		long long ret=0;
+		for(auto i:a) {
+			ret=(ret*seed+i)%MOD;
+		}
+		return ret;
+	}
+};
