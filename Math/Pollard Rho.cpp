@@ -87,6 +87,6 @@ void gao(LL n) {//gogogogo
 	if(n==1) {
 		f[0]=1;
 		t=1;
-		sort(f,f+t);
 	} else find (n);
+	sort(f,f+t);
 }
