@@ -2,16 +2,17 @@ using LL=long long;
 const LL NUM=10;//运算次数，Miller_Rabin算法为概率运算，误判率为2^(-NUM);
 LL t,f[100];
 LL mul_mod(LL a,LL b,LL n) { //求a*b%n，由于a和b太大，需要用进位乘法
-	a=a%n;
-	b=b%n;
-	LL s=0;
-	while(b) {
-		if(b&1)
-			s=(s+a)%n;
-		a=(a<<1)%n;
-		b=b>>1;
-	}
-	return s;
+// 	a=a%n;
+// 	b=b%n;
+// 	LL s=0;
+// 	while(b) {
+// 		if(b&1)
+// 			s=(s+a)%n;
+// 		a=(a<<1)%n;
+// 		b=b>>1;
+// 	}
+// 	return s;
+	return (int128_t)a*b%n;
 }
 LL pow_mod(LL a,LL b,LL n) { //求a^b%n
 	a=a%n;
