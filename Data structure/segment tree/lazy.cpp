@@ -25,7 +25,7 @@ void push_down(int root) {
 void push_up(int root) {
 	tree[root].val=tree[root*2+1].val+tree[root*2+2].val;
 }
-void change(int root,int l,int r,int val) {
+void change(int root,int l,int r,long long val) {
 	int op=tree[root].l;
 	int ed=tree[root].r;
 	if(op>ed)return;
