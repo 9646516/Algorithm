@@ -1,6 +1,17 @@
 //AGC031E
 //AGC034D
 //負辺あったら壊れるからBellman-Fordとかやるといいんじゃない？
+#define rng(i,a,b) for(int i=int(a);i<int(b);i++)
+#define rep(i,b) rng(i,0,b)
+#define gnr(i,a,b) for(int i=int(b)-1;i>=int(a);i--)
+#define per(i,b) gnr(i,0,b)
+#define pb push_back
+#define eb emplace_back
+#define a first
+#define b second
+#define bg begin()
+#define ed end()
+#define all(x) x.bg,x.ed
 template<class D>
 struct mincf{
 	using P=pair<D,int>;
