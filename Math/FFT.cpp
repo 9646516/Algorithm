@@ -10,18 +10,18 @@ struct comp {
     comp operator*(const comp &x) { return comp(r * x.r - i * x.i, r * x.i + i * x.r); }
 } A[N], B[N], C[N];
 const double pi = acos(-1.0);
-void FFT(comp *a, int n, int t) {
-    for (int i = 1, j = 0; i < n - 1; i++) {
-        for (int s = n; j ^= s >>= 1, ~j & s;)
+void FFT(comp *a, int t) {
+    for (int i = 1, j = 0; i < FFTN - 1; i++) {
+        for (int s = FFTN; j ^= s >>= 1, ~j & s;)
             ;
         if (i < j)
             swap(a[i], a[j]);
     }
-    for (int d = 0; (1 << d) < n; d++) {
+    for (int d = 0; (1 << d) < FFTN; d++) {
         int m = 1 << d, m2 = m << 1;
         double o = pi / m * t;
         comp _w(cos(o), sin(o));
-        for (int i = 0; i < n; i += m2) {
+        for (int i = 0; i < FFTN; i += m2) {
             comp w(1, 0);
             for (int j = 0; j < m; j++) {
                 comp &A = a[i + j + m], &B = a[i + j], t = w * A;
@@ -32,8 +32,8 @@ void FFT(comp *a, int n, int t) {
         }
     }
     if (t == -1)
-        for (int i = 0; i < n; i++)
-            a[i].r /= n;
+        for (int i = 0; i < FFTN; i++)
+            a[i].r /= FFTN;
 }
 int main() {
     ios::sync_with_stdio(false);
@@ -47,12 +47,12 @@ int main() {
     for (int i = 1; i <= m + 1; i++) {
         cin >> B[FFTN - i].r;
     }
-    FFT(A, FFTN, 1);
-    FFT(B, FFTN, 1);
+    FFT(A, 1);
+    FFT(B, 1);
     for (int i = 0; i < FFTN; i++) {
         C[i] = A[i] * B[i];
     }
-    FFT(C, FFTN, -1);
+    FFT(C, -1);
     for (int i = 1; i <= n + m + 1; i++) {
         cout << (int)(C[FFTN - i - 1].r + 0.5) << ' ';
     }
