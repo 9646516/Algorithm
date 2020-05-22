@@ -1,3 +1,4 @@
+//注意这个板子x的系数从1开始
 #include <bits/stdc++.h>
 using namespace std;
 const int FFTN = 1 << 21;
