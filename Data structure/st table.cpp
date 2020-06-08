@@ -1,13 +1,29 @@
-int a[1010];//原始输入数组
-int st[1010][20];//st表
-void init(int n) {
-	for (int i = 0; i < n; i++)st[i][0] = a[i];
-	for (int i = 1; (1 << i) <= n; i++) {
-		for (int j = 0; j + (1 << i) - 1 < n; j++)
-			st[j][i] = min(st[j][i - 1],st[j + (1 << (i - 1))][i - 1]);
-	}
-}
-int search(int l, int r) {
-	int k = (int)(log((double)(r - l + 1)) / log(2.0));
-	return min(st[l][k],st[r - (1 << k) + 1][k]);
-}
+template <typename T, class F = function<T(const T&, const T&)>>
+class SparseTable {
+ public:
+  int n;
+  vector<vector<T>> mat;
+  F func;
+ 
+  SparseTable(const vector<T>& a, const F& f) : func(f) {
+    n = static_cast<int>(a.size());
+    int max_log = 32 - __builtin_clz(n);
+    mat.resize(max_log);
+    mat[0] = a;
+    for (int j = 1; j < max_log; j++) {
+      mat[j].resize(n - (1 << j) + 1);
+      for (int i = 0; i <= n - (1 << j); i++) {
+        mat[j][i] = func(mat[j - 1][i], mat[j - 1][i + (1 << (j - 1))]);
+      }
+    }
+  }
+ 
+  T get(int from, int to) const {
+    assert(0 <= from && from <= to && to <= n - 1);
+    int lg = 32 - __builtin_clz(to - from + 1) - 1;
+    return func(mat[lg][from], mat[lg][to - (1 << lg) + 1]);
+  }
+};
+vector<int> ids(n - 1);
+iota(ids.begin(), ids.end(), 0);
+SparseTable<int> st(ids, [&](int i, int j) { return (w[i] < w[j] ? i : j); });
