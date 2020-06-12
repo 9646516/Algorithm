@@ -1,3 +1,4 @@
+const int INF = 1e9;
 struct MCMF {
 	static const int N=7000,M=N*20;
 	int n,m,fst[N],f[N],a[N],p[N],q[N],d[N];
