@@ -1,55 +1,43 @@
-namespace Eulerian {
-const int N = 1234567, M = 1234567;
-int t, n, m, tot, cc, hd[N], nxt[M], to[M], bh[M], vis[M], in[N], out[N],
-    ans[M];
-void add(int x, int y, int id) {
-  nxt[++tot] = hd[x];
-  hd[x] = tot;
-  to[tot] = y;
-  bh[tot] = id;
-  in[y]++;
-  out[x]++;
-}
-void dfs(int x) {
-  for (int i = hd[x]; i; i = hd[x]) {
-    while (i && vis[abs(bh[i])])
-      i = nxt[i];
-    hd[x] = i;
-    if (!i)
-      break;
-    vis[abs(bh[i])] = 1;
-    dfs(to[i]), ans[++cc] = bh[i];
-  }
-}
- 
-void init() {
-  memset(hd, 0, sizeof(hd));
-  memset(nxt, 0, sizeof(nxt));
-  memset(to, 0, sizeof(to));
-  memset(bh, 0, sizeof(bh));
-  memset(vis, 0, sizeof(vis));
-  memset(in, 0, sizeof(in));
-  memset(out, 0, sizeof(out));
-  memset(ans, 0, sizeof(ans));
-  t = 1;
-  n = 0;
-  m = 0;
-  tot = 0;
-  cc = 0;
-}
-bool solve() {
-  for (int i = 1; i <= n; i++)
-    if ((t == 1 && in[i] & 1)) {
-      return false;
+// 无向图,欧拉路径 除了终点和起点为奇点,其它点的度数均为偶点
+// 无向图,欧拉回路 均为偶点
+// 有向图,欧拉路径 起点出度比入度大1，终点入度比出度大1,其它点入度=出度
+// 有向图,欧拉回路 所有点入度=出度
+const int maxn = 2e5 + 555;
+const int MOD = 1e9 + 7;
+template <int N> struct Hierholzer {
+    vector<multiset<int>> V;
+    vector<int> deg, res;
+    Hierholzer() {
+        V.resize(N + 5);
+        deg.resize(N + 5);
     }
-  dfs(to[1]);
-  if (cc < m)
-    return false;
-  else {
-    path.clear();
-    for (int i = cc; i >= 1; i--)
-      path.push_back(ans[i]);
-    return true;
-  }
-}
-} // namespace Eulerian
+    void dfs(int x) {
+        while (!V[x].empty()) {
+            int u = *V[x].begin();
+            V[x].erase(V[x].begin());
+            V[u].erase(V[u].lower_bound(x));
+            dfs(u);
+        }
+        res.emplace_back(x);
+    }
+    void add(int a, int b) {
+        V[a].insert(b);
+        V[b].insert(a);
+        deg[a]++;
+        deg[b]++;
+    }
+    bool solve() {
+        vector<int> odd;
+        for (int i = 1; i <= N; i++) {
+            if (deg[i] & 1) {
+                odd.emplace_back(i);
+            }
+        }
+        if (odd.size() != 0 and odd.size() != 2) {
+            return false;
+        }
+        dfs(odd.empty() ? 1 : odd.front());
+        reverse(res.begin(), res.end());
+        return true;
+    }
+};
