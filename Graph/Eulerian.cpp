@@ -2,8 +2,6 @@
 // 无向图,欧拉回路 均为偶点
 // 有向图,欧拉路径 起点出度比入度大1，终点入度比出度大1,其它点入度=出度
 // 有向图,欧拉回路 所有点入度=出度
-const int maxn = 2e5 + 555;
-const int MOD = 1e9 + 7;
 template <int N> struct Hierholzer {
     vector<multiset<int>> V;
     vector<int> deg, res;
