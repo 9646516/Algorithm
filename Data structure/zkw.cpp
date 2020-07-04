@@ -4,7 +4,7 @@ const int N = 1 << 22;
 #define F0Rd(i, a) for (int i = (a)-1; i >= 0; i--)
 template <int SZ> struct Seg {
     T seg[2 * SZ];
-    static const ID = 0;
+    static const T ID = 0;
     void init() { F0R(i, 2 * SZ) seg[i] = ID; }
     Seg() { init(); }
     void build() { F0Rd(i, SZ) seg[i] = comb(seg[2 * i], seg[2 * i + 1]); }
