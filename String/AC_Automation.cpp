@@ -3,8 +3,7 @@ using namespace std;
 const int maxn = 50 * 10000 + 5;
 const int ALPHA = 26;
 struct AC_Automation {
-    int next[maxn][ALPHA], fail[maxn], val[maxn];
-    int idx, root;
+    int next[maxn][ALPHA], fail[maxn], val[maxn], idx, root;
     int create() {
         for (int i = 0; i < ALPHA; i++)
             next[idx][i] = -1;
@@ -16,25 +15,25 @@ struct AC_Automation {
         root = create();
     }
     void build() {
-        queue<int> ans;
+        queue<int> Q;
         fail[root] = root;
         for (int i = 0; i < ALPHA; i++) {
             if (next[root][i] == -1)
                 next[root][i] = root;
             else {
                 fail[next[root][i]] = root;
-                ans.push(next[root][i]);
+                Q.push(next[root][i]);
             }
         }
-        while (!ans.empty()) {
-            int now = ans.front();
-            ans.pop();
+        while (!Q.empty()) {
+            int now = Q.front();
+            Q.pop();
             for (int i = 0; i < ALPHA; i++) {
                 if (next[now][i] == -1)
                     next[now][i] = next[fail[now]][i];
                 else {
                     fail[next[now][i]] = next[fail[now]][i];
-                    ans.push(next[now][i]);
+                    Q.push(next[now][i]);
                 }
             }
         }
@@ -48,7 +47,7 @@ struct AC_Automation {
         }
         val[now]++;
     }
-    void insert(char a[]) {
+    void insert(const char a[]) {
         int len = strlen(a);
         int now = root;
         for (int i = 0; i < len; i++) {
@@ -72,7 +71,7 @@ struct AC_Automation {
         }
         return ret;
     }
-    int query(char a[]) {
+    int query(const char a[]) {
         int len = strlen(a);
         int now = root;
         int ret = 0;
