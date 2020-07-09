@@ -47,35 +47,10 @@ struct AC_Automation {
         }
         val[now]++;
     }
-    void insert(const char a[]) {
-        int len = strlen(a);
-        int now = root;
-        for (int i = 0; i < len; i++) {
-            if (next[now][a[i] - 'a'] == -1)
-                next[now][a[i] - 'a'] = create();
-            now = next[now][a[i] - 'a'];
-        }
-        val[now]++;
-    }
     int query(const string &a) {
         int now = root;
         int ret = 0;
         for (int i = 0; i < (int)a.size(); i++) {
-            now = next[now][a[i] - 'a'];
-            int p = now;
-            while (p != root) {
-                ret += val[p];
-                val[p] = 0;
-                p = fail[p];
-            }
-        }
-        return ret;
-    }
-    int query(const char a[]) {
-        int len = strlen(a);
-        int now = root;
-        int ret = 0;
-        for (int i = 0; i < len; i++) {
             now = next[now][a[i] - 'a'];
             int p = now;
             while (p != root) {
