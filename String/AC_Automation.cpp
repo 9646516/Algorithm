@@ -1,84 +1,113 @@
-#include<iostream>
-#include<queue>
-#include<cstring>
+#include <bits/stdc++.h>
 using namespace std;
-const int maxn=50*10000+5;
+const int maxn = 50 * 10000 + 5;
+const int ALPHA = 26;
 struct AC_Automation {
-	int Next[maxn][30],Fail[maxn],End[maxn];
-	int L,root;
-	int create() {
-		for(int i=0; i<26; i++)Next[L][i]=-1;
-		End[L++]=0;
-		return L-1;
-	}
-	void init() {
-		L=0;
-		root=create();
-	}
-	void insert(string a) {
-		int len=a.size();
-		int now=root;
-		for(int i=0; i<len; i++) {
-			if(Next[now][a[i]-'a']==-1)	Next[now][a[i]-'a']=create();
-			now=Next[now][a[i]-'a'];
-		}
-		End[now]++;
-	}
-	void build() {
-		queue<int>ans;
-		Fail[root]=root;
-		for(int i=0; i<26; i++) {
-			if(Next[root][i]==-1)Next[root][i]=root;
-			else {
-				Fail[Next[root][i]]=root;
-				ans.push(Next[root][i]);
-			}
-		}
-		while(!ans.empty()) {
-			int now = ans.front();
-			ans.pop();
-			for(int i=0; i<26; i++) {
-				if(Next[now][i]==-1)Next[now][i] = Next[Fail[now]][i];
-				else {
-					Fail[Next[now][i]]=Next[Fail[now]][i];
-					ans.push(Next[now][i]);
-				}
-			}
-		}
-	}
-	int query(string a) {
-		int now = root;
-		int res = 0;
-		int len = a.size();
-		for(int i = 0; i < len; i++) {
-			now = Next[now][a[i]-'a'];
-			int temp = now;
-			while(temp != root) {
-				res += End[temp];
-		//		End[temp] = 0;
-				temp = Fail[temp];
-			}
-		}
-		return res;
-	}
+    int next[maxn][ALPHA], fail[maxn], val[maxn];
+    int idx, root;
+    int create() {
+        for (int i = 0; i < ALPHA; i++)
+            next[idx][i] = -1;
+        val[idx] = 0;
+        return idx++;
+    }
+    void init() {
+        idx = 0;
+        root = create();
+    }
+    void build() {
+        queue<int> ans;
+        fail[root] = root;
+        for (int i = 0; i < ALPHA; i++) {
+            if (next[root][i] == -1)
+                next[root][i] = root;
+            else {
+                fail[next[root][i]] = root;
+                ans.push(next[root][i]);
+            }
+        }
+        while (!ans.empty()) {
+            int now = ans.front();
+            ans.pop();
+            for (int i = 0; i < ALPHA; i++) {
+                if (next[now][i] == -1)
+                    next[now][i] = next[fail[now]][i];
+                else {
+                    fail[next[now][i]] = next[fail[now]][i];
+                    ans.push(next[now][i]);
+                }
+            }
+        }
+    }
+    void insert(const string &a) {
+        int now = root;
+        for (int i = 0; i < (int)a.size(); i++) {
+            if (next[now][a[i] - 'a'] == -1)
+                next[now][a[i] - 'a'] = create();
+            now = next[now][a[i] - 'a'];
+        }
+        val[now]++;
+    }
+    void insert(char a[]) {
+        int len = strlen(a);
+        int now = root;
+        for (int i = 0; i < len; i++) {
+            if (next[now][a[i] - 'a'] == -1)
+                next[now][a[i] - 'a'] = create();
+            now = next[now][a[i] - 'a'];
+        }
+        val[now]++;
+    }
+    int query(const string &a) {
+        int now = root;
+        int ret = 0;
+        for (int i = 0; i < (int)a.size(); i++) {
+            now = next[now][a[i] - 'a'];
+            int p = now;
+            while (p != root) {
+                ret += val[p];
+                val[p] = 0;
+                p = fail[p];
+            }
+        }
+        return ret;
+    }
+    int query(char a[]) {
+        int len = strlen(a);
+        int now = root;
+        int ret = 0;
+        for (int i = 0; i < len; i++) {
+            now = next[now][a[i] - 'a'];
+            int p = now;
+            while (p != root) {
+                ret += val[p];
+                val[p] = 0;
+                p = fail[p];
+            }
+        }
+        return ret;
+    }
 } AC;
-int q,n;
-string a,b;
+int q, n;
+string a, b;
 int main() {
-	ios::sync_with_stdio(false);
-	cin.tie(0);
-	cout.tie(0);
-	cin>>q;
-	while(q--) {
-		cin>>a>>n;
-		AC.init();
-		getline(cin,b);
-		while(n--) {
-			getline(cin,b);
-			AC.insert(b);
-		}
-		AC.build();
-		cout<<AC.query(a)<<endl;
-	}
-	return 0;
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    int cas;
+    cin >> cas;
+    while (cas--) {
+        int n;
+        AC.init();
+        cin >> n;
+        string x;
+        while (n--) {
+            cin >> x;
+            AC.insert(x);
+        }
+        AC.build();
+        cin >> x;
+        cout << AC.query(x) << '\n';
+    }
+    return 0;
 }
