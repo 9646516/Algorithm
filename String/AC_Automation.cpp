@@ -38,12 +38,13 @@ struct AC_Automation {
             }
         }
     }
+    inline int ord(char s) { return s - 'a'; }
     void insert(const string &a) {
         int now = root;
         for (int i = 0; i < (int)a.size(); i++) {
-            if (next[now][a[i] - 'a'] == -1)
-                next[now][a[i] - 'a'] = create();
-            now = next[now][a[i] - 'a'];
+            if (next[now][ord(a[i])] == -1)
+                next[now][ord(a[i])] = create();
+            now = next[now][ord(a[i])];
         }
         val[now]++;
     }
@@ -51,7 +52,7 @@ struct AC_Automation {
         int now = root;
         int ret = 0;
         for (int i = 0; i < (int)a.size(); i++) {
-            now = next[now][a[i] - 'a'];
+            now = next[now][ord(a[i])];
             int p = now;
             while (p != root) {
                 ret += val[p];
