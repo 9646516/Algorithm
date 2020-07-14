@@ -1,35 +1,39 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
-const int maxn=1e5+5; 
-int q,len,s[maxn],Ma[maxn*2+5],Mp[maxn*2+5];
-void Manacher() {
-	int l=0;
-	Ma[l++]=-1;
-	Ma[l++]=-2;
-	for(int i=0; i<len; i++) {
-		Ma[l++]=s[i];
-		Ma[l++]=-2;
-	}
-	Ma[l]=0;
-	int mx=0,id=0;
-	for(int i=0; i<l; i++) {
-		Mp[i]=mx>i?min(Mp[2*id-i],mx-i):1;
-		while(Ma[i+Mp[i]]==Ma[i-Mp[i]])Mp[i]++;
-		if(i+Mp[i]>mx) {
-			mx=i+Mp[i];
-			id=i;
-		}
-	}
+vector<int> manacher(const string &a) {
+    vector<char> sb{'#', '$'};
+    for (int i = 0; i < (int)a.size(); i++) {
+        sb.push_back(a[i]);
+        sb.push_back('$');
+    }
+    vector<int> ret(sb.size(), 1);
+    int centerOfCycle = 0, rEndOfCycle = 0;
+    for (int i = 0; i < (int)sb.size(); i++) {
+        if (rEndOfCycle > i) {
+            ret[i] = min(ret[2 * centerOfCycle - i], rEndOfCycle - i);
+        }
+        while (sb[i + ret[i]] == sb[i - ret[i]])
+            ret[i]++;
+        if (i + ret[i] > rEndOfCycle) {
+            rEndOfCycle = i + ret[i];
+            centerOfCycle = i;
+        }
+    }
+    return ret;
 }
-int main() {
-	scanf("%d",&q);
-	while(q--) {
-		cin>>len;
-		for(int i=0;i<len;i++)	scanf("%d",&s[i]);
-		Manacher();
-		int ans=0;
-		for(int i=0; i<2*len+2; i++)ans=max(ans,Mp[i]-1);
-		printf("%d\n",ans);
-	}
-	return 0;
+int32_t main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    cout.precision(10);
+    cout << fixed;
+    string a;
+    cin >> a;
+    vector<int> res = manacher(a);
+    int ans = 0;
+    for (int i : res) {
+        ans = max(ans, i - 1);
+    }
+    cout << ans << '\n';
+    return 0;
 }
