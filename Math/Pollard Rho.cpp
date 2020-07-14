@@ -12,7 +12,7 @@ LL mul_mod(LL a,LL b,LL n) { //求a*b%n，由于a和b太大，需要用进位乘
 // 		b=b>>1;
 // 	}
 // 	return s;
-	return (int128_t)a*b%n;
+	return (__int128_t)a*b%n;
 }
 LL pow_mod(LL a,LL b,LL n) { //求a^b%n
 	a=a%n;
