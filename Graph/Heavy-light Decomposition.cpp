@@ -1,8 +1,8 @@
+using T = int;
+const T ID = 0;
 template <int SZ> struct Seg {
 #define F0R(i, a) for (int i = 0; i < (a); i++)
 #define F0Rd(i, a) for (int i = (a)-1; i >= 0; i--)
-    using T = int;
-    static const T ID = 0;
     T seg[2 * SZ];
     void init() { F0R(i, 2 * SZ) seg[i] = ID; }
     Seg() { init(); }
@@ -25,7 +25,7 @@ template <int SZ> struct Seg {
         for (seg[p += SZ] = value; p > 1; p >>= 1)
             seg[p >> 1] = comb(seg[(p | 1) ^ 1], seg[p | 1]);
     }
-    T query(int l, int r) {
+    T ask(int l, int r) {
         if (l > r)
             return 0;
         T res1 = ID, res2 = ID;
@@ -92,20 +92,20 @@ template <int N> struct HLD : public Seg<N> {
         return dep[x] + dep[y] - dep[LCA] - dep[LCA];
     }
     int query(int x, int y) {
-        int ret = 0;
+        T ret = ID;
         int fa1 = top[x], fa2 = top[y];
         while (fa1 != fa2) {
             if (dep[fa1] < dep[fa2]) {
                 swap(fa1, fa2);
                 swap(x, y);
             }
-            ret += query(idx[fa1], idx[x]);
+            ret = comb(ret, ask(idx[fa1], idx[x]));
             x = fa[fa1];
             fa1 = top[x];
         }
         if (idx[x] > idx[y])
             swap(x, y);
-        ret += query(idx[x], idx[y]);
+        ret = comb(ret, ask(idx[x], idx[y]));
         return ret;
     }
     void add(int u, int v) {
@@ -119,5 +119,5 @@ template <int N> struct HLD : public Seg<N> {
         dfs2(root, -1, root, idx);
     }
 };
-const int maxn = 2e5 + 555;
 constexpr int N = 1 << (__lg(maxn) + 1);
+HLD<N> st;
