@@ -91,7 +91,7 @@ template <int N> struct HLD : public Seg<N> {
         int LCA = lca(x, y);
         return dep[x] + dep[y] - dep[LCA] - dep[LCA];
     }
-    int query(int x, int y) {
+    T query(int x, int y) {
         T ret = ID;
         int fa1 = top[x], fa2 = top[y];
         while (fa1 != fa2) {
